@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<style>
+	*{
+		margin:0;
+		padding:0;
+		list-style: none
+	}
+	canvas{
+		display: block;
+		background-color: black;
+	}
+</style>
+<body>
+	<canvas id="canvas"></canvas>
+</body>
+</html>
+<script>
+	var can=document.getElementById("canvas");
+	var ctx=can.getContext("2d");//设置绘画的环境为2d,只支持2d;
+	var w=can.width=window.innerWidth;
+	var h=can.height=window.innerHeight;
+	window.onresize=function(){
+		w=can.width=window.innerWidth;
+		h=can.height=window.innerHeight;
+	}
+	// 设置圆形路径
+	// x，y设置圆心坐标，r半径，0~math.PI绘制整圆，逆时针。
+	//ctx.clearRect(x, y, w, h)//清空画布 开始位置，x，y ；清空多大的选区w，h；
+	//ctx.beginPath();//开始路径
+	//ctx.arc(100,100,50,0,Math.PI*2,false)//顺时针还是逆时针
+	// 绘制一个实心圆
+	//ctx.fillStyle='red';//设置绘图的颜色；
+	//ctx.fill();//填充方法
+	// canvas动画原理：不停改变坐标
+
+
+	//创建一个圆形类
+	function Circle(){
+		//圆心坐标
+		this.x=Math.random()*w;
+		this.y=Math.random()*h;
+		//规定速度值
+		this.vx=Math.random()*20-10;
+		this.vy=Math.random()*20-10;
+		// 圆形半径
+		this.r=Math.random()*20+20;
+
+		var r=Math.ceil(Math.random()*255);
+		var g=Math.ceil(Math.random()*255);
+		var b=Math.ceil(Math.random()*255);
+		this.color = 'rgba('+r+','+g+','+b+',0.6)';
+	}
+	// var cir=new Circle();
+	var counts = [];
+	for(var i=0;i<60;i++){
+		counts.push(new Circle());
+	};
+	function Drag(){
+		//ctx.clearRect(0, 0, w, h);//清除画布
+		ctx.globalCompositeOperation='source-over';//设置为默认值；透明层覆盖源图层；
+		ctx.fillStyle='rgba(0,0,0,0.5)';//绘制一个透明层
+		ctx.fillRect(0,0,w,h);
+		ctx.globalCompositeOperation='lighter';//设置同时显示源图层和透明层；
+		for(var i=0;i<counts.length;i++){
+			var c=counts[i]
+			//设置径向渐变
+			var col = ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,c.r);
+			col.addColorStop(0,'#fff');//0起点
+			col.addColorStop(0.4,'#fff');
+			col.addColorStop(0.4,c.color);
+			col.addColorStop(1,"#000");//1 终点
+			ctx.beginPath();//开始路径
+			ctx.arc(c.x,c.y,c.r,0,Math.PI*2,false);
+			ctx.fillStyle=col;
+			ctx.fill();
+			//更新坐标值
+			c.x+=c.vx;
+			c.y+=c.vy;
+			if(c.x<0){
+				c.x=w;
+			};//从左边消失往右边出来
+			if(c.x>w){
+				c.x=0;
+			};//从右边消失往左边出来
+			if(c.y<0){
+				c.y=h;
+			};//从上边消失往下边出来
+			if(c.y>h){
+				c.y=0;
+			};//从下边消失往上边出来
+		}
+	}
+	setInterval(Drag,30)
+	// 随机颜色
+	function color(){
+		let r=[0,1,2,3,4,5,6,7,8,9,'a','b','c','d','e','f'];
+		let str='';
+		for(var i=0;i<6;i++){
+			var n=Math.ceil(Math.random()*15);
+			str+=r[n];
+		}
+		return "#"+str;
+	}
+	console.log(color());
+</script>
